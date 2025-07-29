@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Interactivo: Bases de Datos NoSQL en AWS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: La aplicación está diseñada como un panel de control de una sola página. Comienza con una introducción, seguida de una sección interactiva central. El usuario utiliza botones para seleccionar uno de los tres escenarios de negocio (Plataforma de noticias digitales, Sistema de recomendaciones, Plataforma de música en streaming). Al hacer clic, el área de contenido de abajo se actualiza dinámicamente con los detalles del caso, las justificaciones, ventajas, desventajas y una gráfica de radar que visualiza el perfil del servicio elegido para ese contexto específico. Esta estructura fue elegida para facilitar la comparación directa y el aprendizaje activo, enfocando la atención del usuario en un caso a la vez para evitar la sobrecarga de información y hacer que los datos complejos sean más digeribles y atractivos. -->
+    <!-- Visualization & Content Choices: Se utiliza una gráfica de radar de Chart.js para mostrar el perfil del servicio seleccionado en seis ejes clave para bases de datos NoSQL (Flexibilidad de Esquema, Escalabilidad, Latencia de Acceso, Complejidad de Consultas, Costo Relativo, Idoneidad para Grafos, Persistencia de Datos). Al seleccionar un escenario, la gráfica se actualiza para mostrar las puntuaciones que reflejan la idoneidad del servicio para cada característica. Esta visualización fue elegida porque muestra de manera efectiva las fortalezas y debilidades relativas en múltiples dimensiones simultáneamente para el servicio seleccionado. El texto se presenta en tarjetas claras y concisas con íconos Unicode para mejorar la legibilidad de las ventajas y desventajas. La interacción se centra en los botones de selección, que activan actualizaciones de contenido y visualización a través de JavaScript. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .tab-btn.active {
+            background-color: #0d9488;
+            color: #ffffff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl">
+
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-teal-800">Decisiones Estratégicas de Bases de Datos NoSQL en la Nube</h1>
+            <p class="mt-2 text-lg text-slate-600">Análisis Interactivo: DocumentDB, Neptune y ElastiCache</p>
+        </header>
+
+        <main>
+            <section id="introduction" class="mb-12 bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-2xl font-bold text-teal-700 mb-3">Explorando las Bases de Datos NoSQL de AWS</h2>
+                <p class="text-slate-600">
+                    La diversidad de bases de datos NoSQL en AWS ofrece soluciones especializadas para cada necesidad. Desde el almacenamiento flexible de documentos hasta la gestión de relaciones complejas en grafos y el acceso ultrarrápido en memoria, la elección correcta es clave para la eficiencia y el rendimiento. Esta herramienta interactiva te permitirá explorar tres escenarios comunes y entender cómo servicios como <strong class="font-semibold text-teal-600">Amazon DocumentDB</strong>, <strong class="font-semibold text-teal-600">Amazon Neptune</strong> y <strong class="font-semibold text-teal-600">Amazon ElastiCache (Redis)</strong> se adaptan a requisitos específicos, destacando sus fortalezas y consideraciones.
+                </p>
+            </section>
+
+            <section id="interactive-dashboard" class="bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-2xl font-bold text-center text-teal-700 mb-6">Selecciona un Escenario para Analizar</h2>
+                
+                <div id="tabs-container" class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8">
+                    <button data-case="noticias" class="tab-btn w-full sm:w-auto text-center px-6 py-3 rounded-lg text-base font-medium bg-slate-200 text-slate-700 hover:bg-teal-100 transition-all duration-300 active">
+                        📰 Plataforma de Noticias Digitales
+                    </button>
+                    <button data-case="redsocial" class="tab-btn w-full sm:w-auto text-center px-6 py-3 rounded-lg text-base font-medium bg-slate-200 text-slate-700 hover:bg-teal-100 transition-all duration-300">
+                        🔗 Sistema de Recomendaciones (Red Social)
+                    </button>
+                    <button data-case="musica" class="tab-btn w-full sm:w-auto text-center px-6 py-3 rounded-lg text-base font-medium bg-slate-200 text-slate-700 hover:bg-teal-100 transition-all duration-300">
+                        🎵 Plataforma de Música en Streaming
+                    </button>
+                </div>
+
+                <div id="content-area">
+                </div>
+
+            </section>
+
+             <section id="conclusion" class="mt-12 bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-2xl font-bold text-teal-700 mb-3">Conclusión: La Especialización es Clave</h2>
+                <p class="text-slate-600">
+                    La era de las bases de datos NoSQL nos enseña que no hay una solución única para todos. Cada servicio está diseñado para optimizar un tipo específico de carga de trabajo y modelo de datos. Comprender las características únicas de <strong class="font-semibold text-teal-600">DocumentDB</strong>, <strong class="font-semibold text-teal-600">Neptune</strong> y <strong class="font-semibold text-teal-600">ElastiCache (Redis)</strong> te permitirá construir arquitecturas más eficientes, escalables y rentables, alineadas con los requisitos exactos de tu aplicación. La clave reside en identificar la base de datos que mejor se adapta a la naturaleza de tus datos y patrones de acceso.
+                </p>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const caseData = {
+            noticias: {
+                title: "Plataforma de Noticias Digitales",
+                chosenService: "Amazon DocumentDB",
+                chosenServiceColor: "text-blue-600",
+                justification: "Permite almacenar documentos JSON con estructuras flexibles, ideal para artículos con campos variables (etiquetas, autores, categorías). Soporta escalabilidad automática y alta disponibilidad.",
+                advantages: [
+                    "Compatible con MongoDB",
+                    "Flexible en esquemas",
+                    "Consulta potente sobre documentos",
+                    "Integración con servicios AWS"
+                ],
+                disadvantages: [
+                    "Costo más alto que otras bases NoSQL simples",
+                    "No apto para relaciones complejas entre datos"
+                ],
+                chartData: {
+                    label: 'DocumentDB',
+                    data: [5, 4, 3, 3, 3, 1, 5],
+                    backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                    borderColor: 'rgb(56, 189, 248)',
+                    pointBackgroundColor: 'rgb(56, 189, 248)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(56, 189, 248)'
+                }
+            },
+            redsocial: {
+                title: "Sistema de Recomendaciones en una Red Social",
+                chosenService: "Amazon Neptune",
+                chosenServiceColor: "text-purple-600",
+                justification: "Diseñado para bases de datos de grafos, donde se requieren consultas sobre relaciones entre nodos (usuarios, contenidos, preferencias). Ideal para redes sociales y motores de recomendación.",
+                advantages: [
+                    "Alta eficiencia en relaciones complejas",
+                    "Soporte de Gremlin y SPARQL",
+                    "Alta disponibilidad y escalabilidad"
+                ],
+                disadvantages: [
+                    "Curva de aprendizaje más alta",
+                    "Uso muy específico (no sirve como base generalista)",
+                    "Menor soporte fuera de grafos"
+                ],
+                chartData: {
+                    label: 'Neptune',
+                    data: [1, 4, 4, 5, 2, 5, 5],
+                    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                    borderColor: 'rgb(139, 92, 246)',
+                    pointBackgroundColor: 'rgb(139, 92, 246)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(139, 92, 246)'
+                }
+            },
+            musica: {
+                title: "Plataforma de Música en Streaming",
+                chosenService: "Amazon ElastiCache (Redis)",
+                chosenServiceColor: "text-red-600",
+                justification: "Diseñado para minimizar latencia en el acceso a datos transitorios como sesiones de usuario, listas y metadatos. Redis almacena en memoria, permitiendo acceso en milisegundos.",
+                advantages: [
+                    "Extremadamente rápido",
+                    "Ideal para caching y sesiones",
+                    "Soporte para estructuras complejas en Redis (listas, sets)",
+                    "Escalable"
+                ],
+                disadvantages: [
+                    "No persistente por defecto (a menos que se configure)",
+                    "No apto para almacenamiento a largo plazo",
+                    "Limitado a datos temporales"
+                ],
+                chartData: {
+                    label: 'ElastiCache (Redis)',
+                    data: [3, 4, 5, 2, 3, 1, 1],
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    borderColor: 'rgb(239, 68, 68)',
+                    pointBackgroundColor: 'rgb(239, 68, 68)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(239, 68, 68)'
+                }
+            }
+        };
+
+        const contentArea = document.getElementById('content-area');
+        const tabsContainer = document.getElementById('tabs-container');
+        let comparisonChart;
+
+        function renderContent(caseKey) {
+            const data = caseData[caseKey];
+            contentArea.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="order-2 lg:order-1">
+                        <h3 class="text-xl md:text-2xl font-bold mb-2">${data.title}</h3>
+                        <p class="mb-4 text-slate-500 italic">
+                            <span class="font-semibold text-slate-700">Servicio Elegido: </span>
+                            <span class="font-bold text-lg ${data.chosenServiceColor}">${data.chosenService}</span>
+                        </p>
+                        <h4 class="font-semibold text-lg text-teal-700 mb-2">Justificación:</h4>
+                        <p class="text-slate-600 mb-4">${data.justification}</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-semibold text-lg text-green-700 mb-2">Ventajas:</h4>
+                                <ul class="list-disc list-inside space-y-1 text-slate-600">
+                                    ${data.advantages.map(adv => `<li>${adv}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-lg text-red-700 mb-2">Desventajas:</h4>
+                                <ul class="list-disc list-inside space-y-1 text-slate-600">
+                                    ${data.disadvantages.map(disadv => `<li>${disadv}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-1 lg:order-2">
+                         <div class="chart-container">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+            createOrUpdateChart(data.chartData);
+        }
+        
+        function createOrUpdateChart(chartDataset) {
+            const chartLabels = ['Flexibilidad de Esquema', 'Escalabilidad', 'Latencia de Acceso', 'Complejidad de Consultas', 'Costo Relativo', 'Idoneidad para Grafos', 'Persistencia de Datos'];
+            const chartContext = document.getElementById('comparisonChart').getContext('2d');
+
+            if (comparisonChart) {
+                comparisonChart.destroy();
+            }
+
+            comparisonChart = new Chart(chartContext, {
+                type: 'radar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [chartDataset]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 5,
+                            pointLabels: {
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            ticks: {
+                                stepSize: 1,
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    }
+                }
+            });
+        }
+
+        tabsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const caseKey = e.target.dataset.case;
+                
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                renderContent(caseKey);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderContent('noticias');
+        });
+    </script>
+</body>
+</html>
