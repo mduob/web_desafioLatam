@@ -1,0 +1,2 @@
+Este repositorio no es un proyecto como tal, contiene código generado al ir estudiando curso de introducción al desarrollo web de desafío latam.
+La mayor parte son snippets pero se ha tratado de generar navegación entre ejercicios y secciones del curso. 
